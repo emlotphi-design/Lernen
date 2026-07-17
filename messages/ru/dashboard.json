@@ -1,0 +1,13 @@
+{
+  "title": "Панель",
+  "welcomeBack": "С возвращением, {name}",
+  "continueLearning": "Продолжить обучение",
+  "savedWords": "Сохранённые слова",
+  "savedLessons": "Сохранённые уроки",
+  "quizHistory": "История тестов",
+  "progress": "Прогресс",
+  "streak": "Дней подряд",
+  "xp": "Очки опыта",
+  "achievements": "Достижения",
+  "completedLessons": "Завершённые уроки"
+}

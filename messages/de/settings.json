@@ -1,0 +1,10 @@
+{
+  "title": "Einstellungen",
+  "nativeLanguage": "Muttersprache",
+  "targetLevel": "Zielniveau",
+  "theme": "Design",
+  "light": "Hell",
+  "dark": "Dunkel",
+  "system": "System",
+  "language": "Oberflächensprache"
+}

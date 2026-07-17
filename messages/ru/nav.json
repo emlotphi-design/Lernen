@@ -1,0 +1,20 @@
+{
+  "grammar": "Грамматика",
+  "dictionary": "Словарь",
+  "vocabulary": "Лексика",
+  "dashboard": "Панель",
+  "favorites": "Избранное",
+  "search": "Поиск",
+  "settings": "Настройки",
+  "signIn": "Войти",
+  "signUp": "Регистрация",
+  "signOut": "Выйти",
+  "menu": "Меню",
+  "home": "Главная",
+  "roadmap": "Дорожная карта",
+  "conversations": "Разговоры",
+  "reading": "Чтение",
+  "listening": "Аудирование",
+  "aiTutor": "ИИ-репетитор",
+  "notifications": "Уведомления"
+}

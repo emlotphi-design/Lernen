@@ -1,0 +1,13 @@
+{
+  "title": "Panel",
+  "welcomeBack": "Tekrar hoş geldin, {name}",
+  "continueLearning": "Öğrenmeye devam et",
+  "savedWords": "Kaydedilen kelimeler",
+  "savedLessons": "Kaydedilen dersler",
+  "quizHistory": "Test geçmişi",
+  "progress": "İlerleme",
+  "streak": "Günlük seri",
+  "xp": "XP",
+  "achievements": "Başarımlar",
+  "completedLessons": "Tamamlanan dersler"
+}

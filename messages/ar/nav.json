@@ -1,0 +1,20 @@
+{
+  "grammar": "القواعد",
+  "dictionary": "القاموس",
+  "vocabulary": "المفردات",
+  "dashboard": "لوحة التحكم",
+  "favorites": "المفضلة",
+  "search": "بحث",
+  "settings": "الإعدادات",
+  "signIn": "تسجيل الدخول",
+  "signUp": "إنشاء حساب",
+  "signOut": "تسجيل الخروج",
+  "menu": "القائمة",
+  "home": "الرئيسية",
+  "roadmap": "خارطة الطريق",
+  "conversations": "محادثات",
+  "reading": "قراءة",
+  "listening": "استماع",
+  "aiTutor": "مدرّس الذكاء الاصطناعي",
+  "notifications": "الإشعارات"
+}

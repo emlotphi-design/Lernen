@@ -1,0 +1,20 @@
+{
+  "grammar": "Граматика",
+  "dictionary": "Словник",
+  "vocabulary": "Лексика",
+  "dashboard": "Панель",
+  "favorites": "Обране",
+  "search": "Пошук",
+  "settings": "Налаштування",
+  "signIn": "Увійти",
+  "signUp": "Реєстрація",
+  "signOut": "Вийти",
+  "menu": "Меню",
+  "home": "Головна",
+  "roadmap": "Дорожня карта",
+  "conversations": "Розмови",
+  "reading": "Читання",
+  "listening": "Аудіювання",
+  "aiTutor": "ШІ-репетитор",
+  "notifications": "Сповіщення"
+}

@@ -1,0 +1,20 @@
+{
+  "grammar": "دستور زبان",
+  "dictionary": "واژه‌نامه",
+  "vocabulary": "واژگان",
+  "dashboard": "داشبورد",
+  "favorites": "علاقه‌مندی‌ها",
+  "search": "جستجو",
+  "settings": "تنظیمات",
+  "signIn": "ورود",
+  "signUp": "ثبت‌نام",
+  "signOut": "خروج",
+  "menu": "منو",
+  "home": "خانه",
+  "roadmap": "مسیر یادگیری",
+  "conversations": "مکالمات",
+  "reading": "خواندن",
+  "listening": "شنیدن",
+  "aiTutor": "معلم هوش مصنوعی",
+  "notifications": "اعلان‌ها"
+}

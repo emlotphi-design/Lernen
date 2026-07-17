@@ -1,0 +1,13 @@
+{
+  "title": "Dashboard",
+  "welcomeBack": "Welcome back, {name}",
+  "continueLearning": "Continue learning",
+  "savedWords": "Saved words",
+  "savedLessons": "Saved lessons",
+  "quizHistory": "Quiz history",
+  "progress": "Progress",
+  "streak": "Day streak",
+  "xp": "XP",
+  "achievements": "Achievements",
+  "completedLessons": "Lessons completed"
+}

@@ -1,0 +1,13 @@
+{
+  "title": "Dashboard",
+  "welcomeBack": "Willkommen zurück, {name}",
+  "continueLearning": "Weiter lernen",
+  "savedWords": "Gespeicherte Wörter",
+  "savedLessons": "Gespeicherte Lektionen",
+  "quizHistory": "Quiz-Verlauf",
+  "progress": "Fortschritt",
+  "streak": "Tage in Folge",
+  "xp": "XP",
+  "achievements": "Erfolge",
+  "completedLessons": "Abgeschlossene Lektionen"
+}

@@ -1,0 +1,20 @@
+{
+  "grammar": "Grammatik",
+  "dictionary": "Wörterbuch",
+  "vocabulary": "Wortschatz",
+  "dashboard": "Dashboard",
+  "favorites": "Favoriten",
+  "search": "Suche",
+  "settings": "Einstellungen",
+  "signIn": "Anmelden",
+  "signUp": "Registrieren",
+  "signOut": "Abmelden",
+  "menu": "Menü",
+  "home": "Start",
+  "roadmap": "Lernpfad",
+  "conversations": "Gespräche",
+  "reading": "Lesen",
+  "listening": "Hören",
+  "aiTutor": "KI-Tutor",
+  "notifications": "Benachrichtigungen"
+}

@@ -1,0 +1,20 @@
+{
+  "grammar": "Grammar",
+  "dictionary": "Dictionary",
+  "vocabulary": "Vocabulary",
+  "dashboard": "Dashboard",
+  "favorites": "Favorites",
+  "search": "Search",
+  "settings": "Settings",
+  "signIn": "Sign in",
+  "signUp": "Sign up",
+  "signOut": "Sign out",
+  "menu": "Menu",
+  "home": "Home",
+  "roadmap": "Roadmap",
+  "conversations": "Conversations",
+  "reading": "Reading",
+  "listening": "Listening",
+  "aiTutor": "AI Tutor",
+  "notifications": "Notifications"
+}

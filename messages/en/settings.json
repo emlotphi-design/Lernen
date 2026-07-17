@@ -1,0 +1,10 @@
+{
+  "title": "Settings",
+  "nativeLanguage": "Native language",
+  "targetLevel": "Target level",
+  "theme": "Theme",
+  "light": "Light",
+  "dark": "Dark",
+  "system": "System",
+  "language": "Interface language"
+}

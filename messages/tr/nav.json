@@ -1,0 +1,20 @@
+{
+  "grammar": "Dilbilgisi",
+  "dictionary": "Sözlük",
+  "vocabulary": "Kelime Dağarcığı",
+  "dashboard": "Panel",
+  "favorites": "Favoriler",
+  "search": "Ara",
+  "settings": "Ayarlar",
+  "signIn": "Giriş yap",
+  "signUp": "Kayıt ol",
+  "signOut": "Çıkış yap",
+  "menu": "Menü",
+  "home": "Ana Sayfa",
+  "roadmap": "Yol Haritası",
+  "conversations": "Konuşmalar",
+  "reading": "Okuma",
+  "listening": "Dinleme",
+  "aiTutor": "Yapay Zekâ Öğretmeni",
+  "notifications": "Bildirimler"
+}
