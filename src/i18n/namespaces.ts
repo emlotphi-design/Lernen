@@ -3,8 +3,6 @@ export const namespaces = [
   "nav",
   "home",
   "auth",
-  "grammar",
-  "lesson",
   "writingChecker",
   "dictionary",
   "vocabulary",

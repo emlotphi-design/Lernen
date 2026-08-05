@@ -150,5 +150,7 @@
   "heroStatQuizzes": "Etkileşimli Testler",
   "heroStatAiTeacher": "Yapay Zekâ Öğretmen",
   "heroScrollHint": "Keşfetmek için kaydırın",
-  "footerRights": "Tüm hakları saklıdır."
+  "footerRights": "Tüm hakları saklıdır.",
+  "interactiveDemoTitle": "Bir ders, üç araç",
+  "interactiveDemoSubtitle": "Dilbilgisi açıklamaları, bunları test eden bir quiz ve her şeyi arayabileceğin bir sözlük — hepsi gerçek zamanlı birlikte çalışıyor."
 }

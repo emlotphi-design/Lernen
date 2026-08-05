@@ -150,5 +150,7 @@
   "heroStatQuizzes": "Interaktive Quizze",
   "heroStatAiTeacher": "KI-Lehrer",
   "heroScrollHint": "Zum Entdecken scrollen",
-  "footerRights": "Alle Rechte vorbehalten."
+  "footerRights": "Alle Rechte vorbehalten.",
+  "interactiveDemoTitle": "Eine Lektion, drei Werkzeuge",
+  "interactiveDemoSubtitle": "Grammatikerklärungen, ein Quiz zum Testen und ein Wörterbuch zum Nachschlagen – alles arbeitet in Echtzeit zusammen."
 }

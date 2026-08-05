@@ -39,9 +39,9 @@ type Rule = {
   betterExamples: BetterExample[];
 };
 
-const NOMINATIV_TOPIC: RelatedTopic = { label: "Der Nominativ", href: "/grammar/nominativ" };
-const AKKUSATIV_TOPIC: RelatedTopic = { label: "Der Akkusativ", href: "/grammar/akkusativ" };
-const DATIV_TOPIC: RelatedTopic = { label: "Der Dativ", href: "/grammar/dativ" };
+const NOMINATIV_TOPIC: RelatedTopic = { label: "Der Nominativ", href: "/lessons/grammar/a1/nominativ" };
+const AKKUSATIV_TOPIC: RelatedTopic = { label: "Der Akkusativ", href: "/lessons/grammar/a1/akkusativ" };
+const DATIV_TOPIC: RelatedTopic = { label: "Der Dativ", href: "/lessons/grammar/b1/dativ" };
 
 // Every rule's `pattern` is the single source of truth for what it matches — `replacer` only
 // describes how to rewrite a match (via String.replace's callback signature), so the regex

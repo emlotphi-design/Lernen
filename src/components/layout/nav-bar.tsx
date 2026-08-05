@@ -5,13 +5,15 @@ import { Bell, GraduationCap, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Kbd } from "@/components/ui/kbd";
 import { Link } from "@/i18n/navigation";
-import { LocaleSwitcher } from "@/components/layout/locale-switcher";
+import { ExplanationLanguageSelector } from "@/components/language/explanation-language-selector";
 import { ThemeToggle } from "@/components/layout/theme-toggle";
-import { MobileNav, type NavLink } from "@/components/layout/mobile-nav";
+import { MobileNav } from "@/components/layout/mobile-nav";
+import { LibraryDropdown } from "@/components/layout/library-dropdown";
+import { TeacherNavLink } from "@/components/layout/teacher-nav-link";
+import { STATIC_NAV_LINKS, DASHBOARD_LINK } from "@/components/layout/nav-links";
 
 export function NavBar({
   appName,
-  links,
   searchLabel,
   notificationsLabel,
   signInLabel,
@@ -19,7 +21,6 @@ export function NavBar({
   menuLabel,
 }: {
   appName: string;
-  links: NavLink[];
   searchLabel: string;
   notificationsLabel: string;
   signInLabel: string;
@@ -45,7 +46,7 @@ export function NavBar({
         }`}
       >
         <div className="flex min-w-0 items-center gap-4 2xl:gap-6">
-          <MobileNav links={links} menuLabel={menuLabel} signInLabel={signInLabel} signUpLabel={signUpLabel} />
+          <MobileNav menuLabel={menuLabel} signInLabel={signInLabel} signUpLabel={signUpLabel} />
           <Link href="/" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight">
             <span className="flex size-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <GraduationCap className="size-4" />
@@ -53,15 +54,23 @@ export function NavBar({
             <span className="hidden sm:inline">{appName}</span>
           </Link>
           <nav className="hidden items-center xl:flex">
-            {links.map((link) => (
+            {STATIC_NAV_LINKS.map((link) => (
               <Link
-                key={link.key}
+                key={link.href + link.label}
                 href={link.href}
                 className="whitespace-nowrap rounded-lg px-2 py-2 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
               >
                 {link.label}
               </Link>
             ))}
+            <LibraryDropdown />
+            <TeacherNavLink />
+            <Link
+              href={DASHBOARD_LINK.href}
+              className="whitespace-nowrap rounded-lg px-2 py-2 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            >
+              {DASHBOARD_LINK.label}
+            </Link>
           </nav>
         </div>
         <div className="flex shrink-0 items-center gap-1">
@@ -83,7 +92,7 @@ export function NavBar({
             <span className="absolute right-1.5 top-1.5 size-1.5 rounded-full bg-primary" />
           </Button>
 
-          <LocaleSwitcher />
+          <ExplanationLanguageSelector />
           <ThemeToggle />
 
           <Link

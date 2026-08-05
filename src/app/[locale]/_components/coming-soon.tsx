@@ -10,12 +10,16 @@ export function ComingSoon({
   title,
   description,
   backLabel,
+  backHref = "/",
 }: {
   icon: LucideIcon;
   eyebrow: string;
   title: string;
   description: string;
   backLabel: string;
+  /** Where the back button goes — defaults to home, but a context that has a more specific
+   *  "back" destination (e.g. a locked lesson's own category) can override it. */
+  backHref?: string;
 }) {
   return (
     <div className="mx-auto flex max-w-xl flex-col items-center px-4 py-24 text-center sm:px-6 lg:px-8">
@@ -29,7 +33,7 @@ export function ComingSoon({
           </span>
           <h1 className="mt-4 text-h3">{title}</h1>
           <p className="mt-2 text-body text-muted-foreground">{description}</p>
-          <Button className="mt-6" render={<Link href="/">{backLabel}</Link>} nativeButton={false} />
+          <Button className="mt-6" render={<Link href={backHref}>{backLabel}</Link>} nativeButton={false} />
         </Card>
       </FadeIn>
     </div>

@@ -16,6 +16,7 @@ export type GrammarCategory = {
   lessons: number;
   completion: number;
   difficulty: Difficulty;
+  href: string;
 };
 
 const difficultyClasses: Record<Difficulty, string> = {
@@ -85,7 +86,7 @@ export function GrammarDashboard({
                 className="mt-1 w-full transition-colors group-hover:border-primary/40 group-hover:bg-accent group-hover:text-accent-foreground"
                 nativeButton={false}
                 render={
-                  <Link href="/grammar">
+                  <Link href={category.href}>
                     {continueLabel}
                     <ArrowRight className="size-3.5" />
                   </Link>

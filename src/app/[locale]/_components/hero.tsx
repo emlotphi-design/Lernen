@@ -94,7 +94,7 @@ export function Hero({
               variant="outline"
               nativeButton={false}
               className="border-white/20 bg-white/10 text-white shadow-md backdrop-blur-xl transition-all duration-300 hover:scale-[1.03] hover:bg-white/20"
-              render={<Link href="/grammar">{ctaSecondary}</Link>}
+              render={<Link href="/lessons/grammar">{ctaSecondary}</Link>}
             />
           </div>
         </FadeIn>

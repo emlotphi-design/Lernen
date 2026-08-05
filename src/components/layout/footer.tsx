@@ -11,16 +11,16 @@ export async function Footer() {
   const year = new Date().getFullYear();
 
   const productLinks = [
-    { href: "/grammar", label: tNav("grammar") },
+    { href: "/lessons/grammar", label: tNav("grammar") },
     { href: "/dictionary", label: tNav("dictionary") },
     { href: "/vocabulary", label: tNav("vocabulary") },
   ];
 
   const companyLinks = [
-    { href: "#", label: tHome("footerAbout") },
-    { href: "#", label: tHome("footerContact") },
-    { href: "#", label: tHome("footerPrivacy") },
-    { href: "#", label: tHome("footerTerms") },
+    { href: "/about", label: tHome("footerAbout") },
+    { href: "/contact", label: tHome("footerContact") },
+    { href: "/privacy", label: tHome("footerPrivacy") },
+    { href: "/terms", label: tHome("footerTerms") },
   ];
 
   return (
@@ -63,7 +63,7 @@ export async function Footer() {
               {cefrLevels.map((level) => (
                 <li key={level}>
                   <Link
-                    href="/grammar"
+                    href="/lessons/grammar"
                     className="text-body-sm text-muted-foreground transition-colors hover:text-foreground"
                   >
                     {level}

@@ -150,5 +150,7 @@
   "heroStatQuizzes": "اختبارات تفاعلية",
   "heroStatAiTeacher": "معلّم بالذكاء الاصطناعي",
   "heroScrollHint": "مرر للاستكشاف",
-  "footerRights": "جميع الحقوق محفوظة."
+  "footerRights": "جميع الحقوق محفوظة.",
+  "interactiveDemoTitle": "درس واحد، ثلاث أدوات",
+  "interactiveDemoSubtitle": "شرح القواعد، واختبار لتجربتها، وقاموس للبحث عن أي شيء — كلها تعمل معًا في الوقت الفعلي."
 }

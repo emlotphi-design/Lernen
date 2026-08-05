@@ -8,9 +8,14 @@ import { WordCloud } from "./word-cloud";
 import { MouseRigidBody } from "./mouse-rigid-body";
 
 /** Step 4: same scene as Step 3, tuned for sustained 60fps — no visual changes. */
-export function HeroScene() {
+export function HeroScene({ active }: { active: boolean }) {
   return (
     <Canvas
+      // Stops R3F's internal render loop entirely once the Hero scrolls out of view — this also
+      // stops @react-three/rapier's physics step, since it's driven by useFrame (see
+      // hero-scene-loader.tsx). The last rendered frame just stays put on the (invisible) canvas;
+      // resuming "always" continues the simulation exactly where it left off.
+      frameloop={active ? "always" : "never"}
       // Capped at native (no supersampling) rather than the previous 1.2x ceiling — the word
       // count doubling below meaningfully raises per-frame vertex/fragment work, and this trims
       // fragment cost directly without touching physics, interaction, or word count at all.

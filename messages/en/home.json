@@ -150,5 +150,7 @@
   "heroStatQuizzes": "Interactive Quizzes",
   "heroStatAiTeacher": "AI Teacher",
   "heroScrollHint": "Scroll to explore",
-  "footerRights": "All rights reserved."
+  "footerRights": "All rights reserved.",
+  "interactiveDemoTitle": "One lesson, three tools",
+  "interactiveDemoSubtitle": "Grammar explanations, a quiz to test them, and a dictionary to look anything up — working together in real time."
 }

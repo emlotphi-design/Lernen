@@ -17,6 +17,7 @@ export type ContinueLesson = {
   icon: LucideIcon;
   timeLeftLabel: string;
   lastOpenedLabel: string;
+  href: string;
 };
 
 const levelIconClasses: Record<CefrLevel, string> = {
@@ -72,7 +73,7 @@ function LessonCard({ lesson, cta }: { lesson: ContinueLesson; cta: string }) {
         className="mt-1 w-full border border-primary-300/30 bg-primary/75 text-primary-foreground backdrop-blur-md transition-all duration-200 hover:scale-[1.02] hover:bg-primary/90"
         nativeButton={false}
         render={
-          <Link href="/grammar">
+          <Link href={lesson.href}>
             {cta}
             <ArrowRight className="size-3.5" />
           </Link>

@@ -6,10 +6,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/sonner";
 import { ThemeProvider } from "@/components/providers/theme-provider";
 import { MotionProvider } from "@/components/providers/motion-provider";
+import { ExplanationLanguageProvider } from "@/components/providers/explanation-language-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
 import { routing, isRtlLocale } from "@/i18n/routing";
 import { fontVariables } from "@/lib/fonts";
+import { getExplanationLanguage } from "@/lib/explanation-language/server";
 import "../globals.css";
 
 export function generateStaticParams() {
@@ -41,6 +43,7 @@ export default async function LocaleLayout({
     notFound();
   }
   setRequestLocale(locale);
+  const initialExplanationLanguage = await getExplanationLanguage();
 
   return (
     <html
@@ -52,14 +55,16 @@ export default async function LocaleLayout({
       <body className="flex min-h-screen flex-col">
         <NextIntlClientProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-            <MotionProvider>
-              <TooltipProvider delay={150}>
-                <Header />
-                <main className="flex-1">{children}</main>
-                <Footer />
-                <Toaster />
-              </TooltipProvider>
-            </MotionProvider>
+            <ExplanationLanguageProvider initialLanguage={initialExplanationLanguage}>
+              <MotionProvider>
+                <TooltipProvider delay={150}>
+                  <Header />
+                  <main className="flex-1">{children}</main>
+                  <Footer />
+                  <Toaster />
+                </TooltipProvider>
+              </MotionProvider>
+            </ExplanationLanguageProvider>
           </ThemeProvider>
         </NextIntlClientProvider>
       </body>

@@ -1,0 +1,55 @@
+import type { NounEntry } from "./types";
+
+/** ~45 common, concrete A1/A2-level nouns spanning all 3 (non-plural) genders, used by the
+ *  case-article generator. Each masculine/neuter noun carries its genitiv suffix; feminine nouns
+ *  never change form for case, so they carry none. */
+export const NOUN_BANK: NounEntry[] = [
+  // masculine
+  { id: "hund", de: "Hund", en: "dog", gender: "masculine", genitiveSuffix: "es" },
+  { id: "mann", de: "Mann", en: "man", gender: "masculine", genitiveSuffix: "es" },
+  { id: "tisch", de: "Tisch", en: "table", gender: "masculine", genitiveSuffix: "es" },
+  { id: "lehrer", de: "Lehrer", en: "teacher", gender: "masculine", genitiveSuffix: "s" },
+  { id: "computer", de: "Computer", en: "computer", gender: "masculine", genitiveSuffix: "s" },
+  { id: "freund", de: "Freund", en: "friend", gender: "masculine", genitiveSuffix: "es" },
+  { id: "vater", de: "Vater", en: "father", gender: "masculine", genitiveSuffix: "s" },
+  { id: "garten", de: "Garten", en: "garden", gender: "masculine", genitiveSuffix: "s" },
+  { id: "ball", de: "Ball", en: "ball", gender: "masculine", genitiveSuffix: "s" },
+  { id: "stuhl", de: "Stuhl", en: "chair", gender: "masculine", genitiveSuffix: "s" },
+  { id: "schluessel", de: "Schlüssel", en: "key", gender: "masculine", genitiveSuffix: "s" },
+  { id: "apfel", de: "Apfel", en: "apple", gender: "masculine", genitiveSuffix: "s" },
+  { id: "baum", de: "Baum", en: "tree", gender: "masculine", genitiveSuffix: "es" },
+  { id: "berg", de: "Berg", en: "mountain", gender: "masculine", genitiveSuffix: "es" },
+  { id: "wagen", de: "Wagen", en: "car", gender: "masculine", genitiveSuffix: "s" },
+  // feminine
+  { id: "frau", de: "Frau", en: "woman", gender: "feminine" },
+  { id: "katze", de: "Katze", en: "cat", gender: "feminine" },
+  { id: "lampe", de: "Lampe", en: "lamp", gender: "feminine" },
+  { id: "tasche", de: "Tasche", en: "bag", gender: "feminine" },
+  { id: "blume", de: "Blume", en: "flower", gender: "feminine" },
+  { id: "uhr", de: "Uhr", en: "clock", gender: "feminine" },
+  { id: "schule", de: "Schule", en: "school", gender: "feminine" },
+  { id: "strasse", de: "Straße", en: "street", gender: "feminine" },
+  { id: "kueche", de: "Küche", en: "kitchen", gender: "feminine" },
+  { id: "tuer", de: "Tür", en: "door", gender: "feminine" },
+  { id: "wand", de: "Wand", en: "wall", gender: "feminine" },
+  { id: "zeitung", de: "Zeitung", en: "newspaper", gender: "feminine" },
+  { id: "familie", de: "Familie", en: "family", gender: "feminine" },
+  { id: "sprache", de: "Sprache", en: "language", gender: "feminine" },
+  { id: "musik", de: "Musik", en: "music", gender: "feminine" },
+  // neuter
+  { id: "kind", de: "Kind", en: "child", gender: "neuter", genitiveSuffix: "es" },
+  { id: "buch", de: "Buch", en: "book", gender: "neuter", genitiveSuffix: "es" },
+  { id: "auto", de: "Auto", en: "car", gender: "neuter", genitiveSuffix: "s" },
+  { id: "haus", de: "Haus", en: "house", gender: "neuter", genitiveSuffix: "es" },
+  { id: "fenster", de: "Fenster", en: "window", gender: "neuter", genitiveSuffix: "s" },
+  { id: "bild", de: "Bild", en: "picture", gender: "neuter", genitiveSuffix: "es" },
+  { id: "zimmer", de: "Zimmer", en: "room", gender: "neuter", genitiveSuffix: "s" },
+  { id: "telefon", de: "Telefon", en: "phone", gender: "neuter", genitiveSuffix: "s" },
+  { id: "handy", de: "Handy", en: "cellphone", gender: "neuter", genitiveSuffix: "s" },
+  { id: "maedchen", de: "Mädchen", en: "girl", gender: "neuter", genitiveSuffix: "s" },
+  { id: "brot", de: "Brot", en: "bread", gender: "neuter", genitiveSuffix: "es" },
+  { id: "licht", de: "Licht", en: "light", gender: "neuter", genitiveSuffix: "es" },
+  { id: "bett", de: "Bett", en: "bed", gender: "neuter", genitiveSuffix: "es" },
+  { id: "wasser", de: "Wasser", en: "water", gender: "neuter", genitiveSuffix: "s" },
+  { id: "papier", de: "Papier", en: "paper", gender: "neuter", genitiveSuffix: "s" },
+];

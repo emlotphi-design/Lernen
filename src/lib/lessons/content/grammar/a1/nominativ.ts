@@ -1,0 +1,172 @@
+import type { Lesson } from "../../../types";
+import { buildLessonHref } from "../../../href";
+
+const lesson: Lesson = {
+  slug: "nominativ",
+  type: "grammar",
+  level: "A1",
+  category: "cases",
+  title: "Der Nominativ",
+  summary: "The case of the subject — and the form every noun starts out in.",
+  durationMinutes: 6,
+  order: 0,
+  status: "completed",
+  progress: 100,
+  href: buildLessonHref("grammar", "A1", "nominativ"),
+  lastUpdated: "2026-05-12",
+  generator: { kind: "case-article", case: "nominativ" },
+  objectives: [
+    "Identify the subject of a German sentence",
+    "Use the nominative after sein, werden, and bleiben",
+  ],
+  explanation: {
+    simple: [
+      "The nominative is the case of the subject — the person or thing doing the action in a sentence.",
+      "It's also the form you'll find in a dictionary, so every noun you learn starts out in the nominative.",
+    ],
+    detailed: [
+      "German marks the role a noun plays in a sentence by changing its article, not by changing word order the way English often does. The nominative case marks the subject: the entity performing the action of the verb.",
+      "You can find the subject by asking wer? (who?) for people or was? (what?) for things — whatever answers that question is in the nominative.",
+      "The nominative also appears after the linking verbs sein (to be), werden (to become), and bleiben (to remain), because the noun that follows them renames the subject rather than receiving an action.",
+    ],
+  },
+  examples: [
+    { de: "Der Mann schläft.", en: "The man is sleeping." },
+    { de: "Die Frau arbeitet heute.", en: "The woman is working today." },
+    { de: "Das Kind lacht laut.", en: "The child is laughing loudly." },
+    { de: "Er ist mein Lehrer.", en: "He is my teacher." },
+  ],
+  details: {
+    rules: [
+      "Use the nominative for the subject of any sentence.",
+      "Use it for the predicate noun after sein, werden, and bleiben.",
+      "Ask wer? or was? to identify the nominative element.",
+    ],
+    notes: [
+      "The nominative is the 'default' form — it's the one you look up in a dictionary and the one every other case is compared against.",
+      "Adjective endings before a nominative noun depend on the article and gender, e.g. der große Mann — but that's a topic of its own.",
+    ],
+    table: [
+      { gender: "masculine", definite: "der", indefinite: "ein", pronoun: "er" },
+      { gender: "feminine", definite: "die", indefinite: "eine", pronoun: "sie" },
+      { gender: "neuter", definite: "das", indefinite: "ein", pronoun: "es" },
+      { gender: "plural", definite: "die", indefinite: "–", pronoun: "sie" },
+    ],
+    mistakes: [
+      {
+        wrong: "Ich sehe der Mann.",
+        right: "Ich sehe den Mann.",
+        note: "sehen takes a direct object in the accusative, not the nominative — this is one of the very first mix-ups every learner makes.",
+      },
+      {
+        wrong: "Der Frau ist nett.",
+        right: "Die Frau ist nett.",
+        note: "Feminine nominative is die, never der — der is reserved for masculine nouns.",
+      },
+    ],
+    exceptions: [
+      "A group of masculine nouns known as 'n-nouns' or weak nouns — der Junge, der Name, der Student, der Herr — add -n or -en in every case except the nominative singular.",
+      "A handful of nouns have fluid or regionally debated gender (e.g. der/das Joghurt), but a dictionary will always give you the standard form.",
+    ],
+    tips: [
+      "Whenever you're unsure which case a noun needs, start by finding the verb and asking wer oder was tut das? — the answer is always nominative.",
+      "Learn every new noun together with its nominative article (der/die/das) — that single habit prevents most gender mistakes later on.",
+    ],
+  },
+  exercises: [
+    {
+      id: "nom-ex-1",
+      type: "fill-blank",
+      prompt: "Complete the sentence with the correct nominative article.",
+      sentenceBefore: "",
+      sentenceAfter: " Kind lacht laut.",
+      accepted: ["das"],
+      explanation: "Kind is neuter, and as the subject it needs the nominative neuter article das.",
+      grammarRule: "Neuter nominative article: das.",
+      referenceSectionId: "declension-table",
+      referenceLabel: "Declension table",
+      xp: 10,
+    },
+  ],
+  quiz: [
+    {
+      id: "nom-1",
+      type: "multiple-choice",
+      prompt: "Which sentence correctly uses the nominative?",
+      options: ["Der Mann schläft.", "Den Mann schläft.", "Dem Mann schläft.", "Des Mannes schläft."],
+      correctIndex: 0,
+      explanation: "Der Mann is the subject performing the action, so it stays in the nominative — der, not den or dem.",
+      grammarRule: "Use the nominative for the subject of any sentence.",
+      referenceSectionId: "grammar-rules",
+      referenceLabel: "Grammar rules",
+      xp: 10,
+    },
+    {
+      id: "nom-2",
+      type: "true-false",
+      statement: "The nominative is used for the predicate noun after sein, werden, and bleiben.",
+      correct: true,
+      explanation:
+        "Correct — sein/werden/bleiben link the subject to a noun that renames it, so that noun stays in the nominative too.",
+      grammarRule: "Use the nominative for the predicate noun after sein, werden, and bleiben.",
+      referenceSectionId: "grammar-rules",
+      referenceLabel: "Grammar rules",
+      xp: 10,
+    },
+    {
+      id: "nom-3",
+      type: "fill-blank",
+      prompt: "Complete the sentence with the correct nominative article.",
+      sentenceBefore: "",
+      sentenceAfter: " Frau arbeitet heute.",
+      accepted: ["die"],
+      explanation: "Frau is feminine, and as the subject it needs the nominative feminine article die.",
+      grammarRule: "Feminine nominative article: die.",
+      referenceSectionId: "declension-table",
+      referenceLabel: "Declension table",
+      xp: 15,
+    },
+    {
+      id: "nom-4",
+      type: "sentence-order",
+      prompt: "Put the words in the correct order.",
+      correctOrder: ["Der", "Junge", "liest", "ein", "Buch."],
+      shuffled: ["Buch.", "Der", "liest", "ein", "Junge"],
+      translation: "The boy is reading a book.",
+      explanation:
+        "German main clauses put the subject first (Der Junge), then the conjugated verb (liest) in second position, then the rest.",
+      grammarRule: "Ask wer? or was? to identify the nominative element — here, Der Junge answers wer?",
+      referenceSectionId: "examples",
+      referenceLabel: "Examples",
+      xp: 20,
+    },
+    {
+      id: "nom-5",
+      type: "drag-drop",
+      prompt: "Drag the correct article into each blank.",
+      parts: ["", " Kind lacht, und ", " Katze schläft."],
+      correctAnswers: ["Das", "die"],
+      choices: ["Das", "die", "den", "dem"],
+      explanation: "Kind is neuter → das; Katze is feminine → die — both are nominative subjects.",
+      grammarRule: "Match each noun's gender to its nominative article: der/die/das.",
+      referenceSectionId: "declension-table",
+      referenceLabel: "Declension table",
+      xp: 20,
+    },
+    {
+      id: "nom-6",
+      type: "typing",
+      prompt: "Type the nominative personal pronoun that replaces 'der Lehrer'.",
+      accepted: ["er"],
+      explanation: "Der Lehrer is masculine, so it's replaced by the pronoun er in the nominative.",
+      grammarRule: "Masculine nominative pronoun: er.",
+      referenceSectionId: "declension-table",
+      referenceLabel: "Declension table",
+      xp: 15,
+    },
+  ],
+  conclusion:
+    "The nominative marks the subject of a sentence and the predicate noun after sein, werden, and bleiben. It's the base form every other case changes from, so it's worth mastering before moving on to the accusative.",
+};
+
+export default lesson;

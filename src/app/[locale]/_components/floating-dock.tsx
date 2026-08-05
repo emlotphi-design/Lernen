@@ -45,7 +45,7 @@ export function FloatingDock({
         <TooltipTrigger
           render={
             <Link
-              href="/grammar"
+              href="/lessons/grammar"
               aria-label={continueLabel}
               className={cn(buttonVariants({ variant: "outline", size: "icon" }), dockIconClass)}
             >

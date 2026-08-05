@@ -150,5 +150,7 @@
   "heroStatQuizzes": "Інтерактивні тести",
   "heroStatAiTeacher": "ШІ-вчитель",
   "heroScrollHint": "Прокрутіть, щоб дізнатись більше",
-  "footerRights": "Усі права захищено."
+  "footerRights": "Усі права захищено.",
+  "interactiveDemoTitle": "Один урок, три інструменти",
+  "interactiveDemoSubtitle": "Пояснення граматики, тест для перевірки та словник для пошуку — усе працює разом у реальному часі."
 }
