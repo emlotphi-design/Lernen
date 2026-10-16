@@ -16,9 +16,18 @@ import {
 // (MobileNav), so both stay in sync automatically.
 export type StaticNavItem = { href: string; label: string; icon: LucideIcon };
 
+/** Shared styling for every desktop top-level nav item (plain links, the Bibliothek trigger, the
+ *  Lehrer link) so hover, open and keyboard-focus states stay identical across all of them.
+ *  Combine it with a template string, not cn(): plain tailwind-merge doesn't know the custom
+ *  `text-body-sm` size and drops it as a conflicting text *color* next to `text-muted-foreground`. */
+export const NAV_ITEM_CLASS =
+  "whitespace-nowrap rounded-lg px-2.5 py-1.5 text-body-sm font-medium text-muted-foreground outline-none transition-colors duration-200 hover:bg-foreground/[0.07] hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring/70 data-[popup-open]:bg-foreground/[0.07] data-[popup-open]:text-foreground";
+
 export const STATIC_NAV_LINKS: StaticNavItem[] = [
   { href: "/", label: "Start", icon: Home },
-  { href: "/#roadmap", label: "Lernpfad", icon: Map },
+  // The learning path lives on the grammar overview (categories + unlock progression); the
+  // homepage is a single screen now, so the old /#roadmap anchor no longer exists.
+  { href: "/lessons/grammar", label: "Lernpfad", icon: Map },
 ];
 
 export const DASHBOARD_LINK: StaticNavItem = { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard };

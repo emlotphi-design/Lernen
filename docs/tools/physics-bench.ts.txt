@@ -1,0 +1,132 @@
+// Stored as .txt so it stays inert (outside tsc/eslint/next build). To use: copy it out and drop the
+// .txt suffix (e.g. `cp docs/tools/perf-probe.cjs.txt /tmp/perf-probe.cjs`), then follow the usage below.
+// PRESERVED TOOL (docs only, not part of the app build) — headless Node replica of the hero
+// background physics (same bodies, colliders, solver settings, spring logic and kinematic cursor
+// rod as the app) used to compare word-layout variants (see docs/PROJECT_MEMORY.md §7).
+//
+// Usage (run from the repo root so the TS loader resolves):
+//   1. Put the two word-data.ts variants to compare next to this file as
+//      ./head/word-data.ts (baseline) and ./cur-word-data.ts (candidate).
+//   2. node --no-warnings --import ./scripts/register-ts-loader.mjs docs/tools/physics-bench.ts cur 0.5 90
+//      args: <head|cur> <extrudeHeight> [reanchorAtStep]
+// The deterministic, trustworthy signal is the AWAKE-BODY COUNT per phase (sweep / after sweep /
+// recovery); ms-per-step timings are noisy. Note: @dimforge/rapier3d-compat in this repo is 0.12,
+// which has no setContactSkin — the app's contactSkin prop is silently ignored too.
+// Headless replica of the hero scene's physics (hero-scene.tsx + instanced-word-group.tsx +
+// mouse-rigid-body.tsx) to measure per-step cost. Usage: bench.ts <head|cur> [extrudeHeight]
+import { readFileSync } from "node:fs";
+import RAPIER from "file:///C:/Users/User/Lernen/node_modules/@dimforge/rapier3d-compat/rapier.es.js";
+import * as THREE from "file:///C:/Users/User/Lernen/node_modules/three/build/three.module.js";
+import { TextGeometry } from "file:///C:/Users/User/Lernen/node_modules/three-stdlib/geometries/TextGeometry.js";
+import { Font } from "file:///C:/Users/User/Lernen/node_modules/three-stdlib/loaders/FontLoader.js";
+
+const variant = process.argv[2] ?? "cur";
+const { WORD_INSTANCES } =
+  variant === "head" ? await import("./head/word-data.ts") : await import("./cur-word-data.ts");
+const extrude = Number(process.argv[3] ?? (variant === "head" ? 0.34 : 0.5));
+
+const font = new Font(JSON.parse(readFileSync("C:/Users/User/Lernen/public/fonts/droid-sans-bold.typeface.json", "utf8")));
+const halfExtentsCache = new Map<string, THREE.Vector3>();
+function halfExtents(text: string) {
+  let he = halfExtentsCache.get(text);
+  if (!he) {
+    const g = new TextGeometry(text, { font, size: 1, height: extrude, bevelEnabled: true, bevelThickness: 0.11, bevelSize: 0.07, bevelSegments: 3, curveSegments: 3 });
+    g.center(); g.computeBoundingBox();
+    he = new THREE.Vector3().subVectors(g.boundingBox!.max, g.boundingBox!.min).multiplyScalar(0.5);
+    halfExtentsCache.set(text, he);
+  }
+  return he;
+}
+
+await RAPIER.init();
+const world = new RAPIER.World({ x: 0, y: 0, z: 0 });
+world.timestep = 1 / 60;
+world.numSolverIterations = 6;
+world.numInternalPgsIterations = 2;
+
+const q = new THREE.Quaternion(), e = new THREE.Euler();
+const bodies = WORD_INSTANCES.map((inst: any) => {
+  q.setFromEuler(e.set(...(inst.rotation as [number, number, number])));
+  const body = world.createRigidBody(
+    (inst.pinned ? RAPIER.RigidBodyDesc.fixed() : RAPIER.RigidBodyDesc.dynamic()).setTranslation(...(inst.position as [number, number, number]))
+      .setRotation({ x: q.x, y: q.y, z: q.z, w: q.w }).setLinearDamping(4).setAngularDamping(4).setCanSleep(true).setGravityScale(0),
+  );
+  const he = halfExtents(inst.text);
+  const s = inst.scale;
+  const hw = Math.max(he.x * 0.92, 0.02), hh = Math.max(he.y * 0.92, 0.02), hd = Math.max(he.z * 0.92, 0.02);
+  const br = Math.min(0.055, hw, hh, hd) * 0.9;
+  world.createCollider(RAPIER.ColliderDesc.roundCuboid(hw * s, hh * s, hd * s, br * s).setFriction(0.95).setRestitution(0), body);
+  return body;
+});
+
+// Kinematic cursor body — same tapered segments along the camera ray as mouse-rigid-body.tsx.
+const CAMERA_Z = 15, HALF_FOV = ((45 * Math.PI) / 180) / 2, CENTER_Z = -11;
+const xyR = (z: number) => 0.08 * (CAMERA_Z - z) * Math.tan(HALF_FOV);
+const mouse = world.createRigidBody(RAPIER.RigidBodyDesc.kinematicPositionBased().setTranslation(0, 0, -9999));
+for (const { minZ, maxZ } of [{ minZ: -32, maxZ: -20 }, { minZ: -8, maxZ: 6 }, { minZ: 4, maxZ: 9 }]) {
+  const c = (minZ + maxZ) / 2;
+  world.createCollider(RAPIER.ColliderDesc.cuboid(xyR(c), xyR(c), (maxZ - minZ) / 2).setTranslation(0, 0, CENTER_Z - c), mouse);
+}
+const camera = new THREE.PerspectiveCamera(45, 1.78, 1.2, 72); camera.position.set(0, 0, 15); camera.updateMatrixWorld();
+const ray = new THREE.Raycaster(), mid = new THREE.Vector3(), mq = new THREE.Quaternion(), UZ = new THREE.Vector3(0, 0, 1);
+function placeMouse(ndcX: number, ndcY: number) {
+  ray.setFromCamera(new THREE.Vector2(ndcX, ndcY), camera);
+  const { origin, direction } = ray.ray;
+  mid.copy(origin).addScaledVector(direction, (CENTER_Z - origin.z) / direction.z);
+  mq.setFromUnitVectors(UZ, direction);
+  mouse.setNextKinematicTranslation(mid); mouse.setNextKinematicRotation(mq);
+}
+
+const sc = new THREE.Quaternion(), se = new THREE.Euler();
+const ad = (t: number, c: number) => { let d = (t - c) % (Math.PI * 2); if (d > Math.PI) d -= Math.PI * 2; if (d < -Math.PI) d += Math.PI * 2; return d; };
+const anchors = WORD_INSTANCES.map((inst: any) => ({ position: [...inst.position], rotation: [...inst.rotation] }));
+const REANCHOR_AT = process.argv[4] ? Number(process.argv[4]) : -1;
+function reanchor(maxSpeed = Infinity) {
+  let skipped = 0;
+  let maxShift = 0;
+  bodies.forEach((b: any, i: number) => {
+    const v = b.linvel(), w = b.angvel();
+    if (Math.hypot(v.x, v.y, v.z) > maxSpeed || Math.hypot(w.x, w.y, w.z) > maxSpeed * 4) { skipped++; return; }
+    const p = b.translation(), r = b.rotation(), a = anchors[i];
+    maxShift = Math.max(maxShift, Math.hypot(p.x - a.position[0], p.y - a.position[1]) / (WORD_INSTANCES[i].scale * 0.55));
+    a.position = [p.x, p.y, p.z];
+    sc.set(r.x, r.y, r.z, r.w); se.setFromQuaternion(sc); a.rotation = [se.x, se.y, se.z];
+  });
+  return { skipped, maxScreenShiftInWordHeights: +maxShift.toFixed(3) };
+}
+function springs() {
+  for (let i = 0; i < bodies.length; i++) {
+    const b = bodies[i]; if (b.isSleeping() || !b.isDynamic()) continue;
+    const inst = anchors[i]; const p = b.translation(), v = b.linvel();
+    const nvx = v.x + ((inst.position[0] - p.x) * 7 - v.x) * 0.25, nvy = v.y + ((inst.position[1] - p.y) * 7 - v.y) * 0.25, nvz = v.z + ((inst.position[2] - p.z) * 7 - v.z) * 0.25;
+    const r = b.rotation(); sc.set(r.x, r.y, r.z, r.w); se.setFromQuaternion(sc); const w = b.angvel();
+    const nax = w.x + (ad(inst.rotation[0], se.x) * 5.5 - w.x) * 0.25, nay = w.y + (ad(inst.rotation[1], se.y) * 5.5 - w.y) * 0.25, naz = w.z + (ad(inst.rotation[2], se.z) * 5.5 - w.z) * 0.25;
+    if (nvx * nvx + nvy * nvy + nvz * nvz < 1e-4 && nax * nax + nay * nay + naz * naz < 1e-4) { b.setLinvel({ x: 0, y: 0, z: 0 }, false); b.setAngvel({ x: 0, y: 0, z: 0 }, false); continue; }
+    b.setLinvel({ x: nvx, y: nvy, z: nvz }, true); b.setAngvel({ x: nax, y: nay, z: naz }, true);
+  }
+}
+const awake = () => bodies.filter((b: any) => b.isDynamic() && !b.isSleeping()).length;
+console.log("pinned:", WORD_INSTANCES.filter((w: any) => w.pinned).length);
+function contacts() { let n = 0; world.contactPairsWith; world.narrowPhase.contactPairsWith; for (const b of bodies) for (let i = 0; i < b.numColliders(); i++) world.narrowPhase.contactPairsWith(b.collider(i).handle, () => n++); return n / 2; }
+function run(steps: number, before?: (i: number) => void) {
+  const times: number[] = [];
+  for (let i = 0; i < steps; i++) { before?.(i); const t = performance.now(); springs(); world.step(); times.push(performance.now() - t); }
+  times.sort((a, b) => a - b);
+  return { mean: +(times.reduce((a, b) => a + b, 0) / steps).toFixed(2), p95: +times[Math.floor(steps * 0.95)].toFixed(2), max: +times[steps - 1].toFixed(2) };
+}
+
+console.log(`variant=${variant} extrude=${extrude} bodies=${bodies.length}`);
+if (REANCHOR_AT >= 0) {
+  console.log(`load ${REANCHOR_AT} steps:`, run(REANCHOR_AT), "awake", awake());
+  console.log("reanchor:", reanchor(Number(process.argv[5] ?? Infinity)));
+  console.log("settle 300 steps:     ", run(300), "awake", awake(), "contact pairs", contacts());
+} else {
+  console.log("first 60 steps (load):", run(60), "awake", awake());
+  console.log("settle 300 steps:     ", run(300), "awake", awake(), "contact pairs", contacts());
+}
+console.log("idle 120 steps:       ", run(120), "awake", awake());
+const sweep = run(120, (i) => placeMouse(-0.95 + (1.9 * i) / 119, 0.7 - (1.4 * i) / 119));
+console.log("fast sweep 120 steps: ", sweep, "awake", awake());
+mouse.setNextKinematicTranslation({ x: 0, y: 0, z: -9999 });
+console.log("after sweep 120 steps:", run(120), "awake", awake());
+for (let k = 0; k < 4; k++) console.log(`recovery +${(k + 1) * 2}s:`, run(120), "awake", awake());

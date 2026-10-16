@@ -9,6 +9,7 @@ import { MotionProvider } from "@/components/providers/motion-provider";
 import { ExplanationLanguageProvider } from "@/components/providers/explanation-language-provider";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
+import { HideOnHome } from "@/components/layout/hide-on-home";
 import { routing, isRtlLocale } from "@/i18n/routing";
 import { fontVariables } from "@/lib/fonts";
 import { getExplanationLanguage } from "@/lib/explanation-language/server";
@@ -60,7 +61,9 @@ export default async function LocaleLayout({
                 <TooltipProvider delay={150}>
                   <Header />
                   <main className="flex-1">{children}</main>
-                  <Footer />
+                  <HideOnHome>
+                    <Footer />
+                  </HideOnHome>
                   <Toaster />
                 </TooltipProvider>
               </MotionProvider>

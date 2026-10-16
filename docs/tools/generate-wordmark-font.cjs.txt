@@ -1,0 +1,56 @@
+// Stored as .txt so it stays inert (outside tsc/eslint/next build). To use: copy it out and drop the
+// .txt suffix (e.g. `cp docs/tools/perf-probe.cjs.txt /tmp/perf-probe.cjs`), then follow the usage below.
+// PRESERVED TOOL (docs only, not part of the app build) — regenerates
+// public/fonts/recursive-lern-mal.morph.json, the 6-style outline file behind the morphing
+// "Lern mal!" hero wordmark (see docs/PROJECT_MEMORY.md §6.3).
+//
+// Usage (outside the app's dependencies on purpose — fontkit is NOT a project dependency):
+//   mkdir /tmp/wm && cd /tmp/wm && npm init -y && npm i fontkit@2
+//   curl -L -o Recursive.ttf "https://github.com/google/fonts/raw/main/ofl/recursive/Recursive%5BCASL,CRSV,MONO,slnt,wght%5D.ttf"
+//   cp <repo>/docs/tools/generate-wordmark-font.cjs . && node generate-wordmark-font.cjs
+//   cp recursive-lern-mal.morph.json <repo>/public/fonts/
+// The script throws if any style yields a different outline structure (morphing requires identical
+// point structure). Keep CRSV=0 and MONO=0. Styles with CASL≈0 (linear) were dropped on purpose:
+// the shared triangulation folded on them.
+// Builds the wordmark's morph-ready outline file: the "Lern mal!" glyphs of Recursive (SIL OFL)
+// at six curated axis positions. A variable font's instances share one point structure per glyph,
+// so every style must produce the identical command sequence — asserted below.
+const fs = require("fs");
+const fontkit = require("fontkit");
+const TEXT = "Lern mal!";
+const STYLES = [
+  { name: "casual-italic", axes: { wght: 850, CASL: 1, slnt: -12 } },
+  { name: "heavy-casual", axes: { wght: 1000, CASL: 0.75, slnt: 0 } },
+  { name: "soft-italic", axes: { wght: 820, CASL: 0.7, slnt: -8 } },
+  { name: "black-semicasual", axes: { wght: 960, CASL: 0.45, slnt: -4 } },
+  { name: "casual-lean", axes: { wght: 900, CASL: 1, slnt: -15 } },
+  { name: "round-heavy", axes: { wght: 940, CASL: 0.55, slnt: -2 } },
+];
+const base = fontkit.openSync("Recursive.ttf");
+const upm = base.unitsPerEm;
+const r = (v) => Math.round((v / upm) * 10000) / 10000;
+const glyphs = {};
+for (const ch of new Set(TEXT)) glyphs[ch] = { types: null, advances: [], coords: [] };
+for (const style of STYLES) {
+  const font = base.getVariation({ MONO: 0, CRSV: 0, ...style.axes });
+  for (const ch of Object.keys(glyphs)) {
+    const glyph = font.glyphForCodePoint(ch.codePointAt(0));
+    let types = ""; const coords = [];
+    for (const { command, args } of glyph.path.commands) {
+      const t = { moveTo: "M", lineTo: "L", quadraticCurveTo: "Q", bezierCurveTo: "C", closePath: "Z" }[command];
+      types += t; for (const a of args) coords.push(r(a));
+    }
+    const g = glyphs[ch];
+    if (g.types === null) g.types = types;
+    else if (g.types !== types) throw new Error(`incompatible outline for "${ch}" in style ${style.name}`);
+    g.advances.push(r(glyph.advanceWidth)); g.coords.push(coords);
+  }
+}
+const out = {
+  family: "Recursive", license: "SIL Open Font License 1.1 — https://openfontlicense.org", copyright: base.copyright,
+  text: TEXT, styles: STYLES.map((s) => s.name), axes: STYLES.map((s) => s.axes), glyphs,
+};
+fs.writeFileSync("recursive-lern-mal.morph.json", JSON.stringify(out));
+const types = Object.fromEntries(Object.entries(glyphs).map(([k, v]) => [k, `${v.types.length} cmds, ${(v.types.match(/M/g) || []).length} contours`]));
+console.log("compatible across all", STYLES.length, "styles:", JSON.stringify(types));
+console.log("bytes:", fs.statSync("recursive-lern-mal.morph.json").size, "| copyright:", base.copyright);

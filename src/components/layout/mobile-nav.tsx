@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/sheet";
 import { Link } from "@/i18n/navigation";
 import { STATIC_NAV_LINKS, DASHBOARD_LINK, LIBRARY_LINKS, type StaticNavItem } from "@/components/layout/nav-links";
-import { TeacherNavTile } from "@/components/layout/teacher-nav-link";
 
 function NavTile({ item, onClick }: { item: StaticNavItem; onClick: () => void }) {
   const Icon = item.icon;
@@ -64,7 +63,6 @@ export function MobileNav({
             {STATIC_NAV_LINKS.map((item) => (
               <NavTile key={item.href + item.label} item={item} onClick={close} />
             ))}
-            <TeacherNavTile onClick={close} />
             <NavTile item={DASHBOARD_LINK} onClick={close} />
           </div>
 

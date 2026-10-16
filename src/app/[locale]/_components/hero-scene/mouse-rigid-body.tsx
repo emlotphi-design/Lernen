@@ -58,6 +58,10 @@ const INACTIVE_POSITION: [number, number, number] = [0, 0, -9999];
 
 const UNIT_Z = new Vector3(0, 0, 1);
 
+/** The live kinematic cursor body, readable from the word groups (instanced-word-group.tsx) so
+ *  they can tell which words the cursor is currently touching. Read-only outside this file. */
+export const mouseBodyHandle: { current: RapierRigidBody | null } = { current: null };
+
 /** The cursor as a real, invisible kinematic Rapier rigid body — its collider physically pushes
  *  through the dynamic word bodies via Rapier's own contact solver rather than a hand-rolled
  *  force field, so neighbor-to-neighbor collision propagation "just happens".
@@ -85,6 +89,13 @@ export function MouseRigidBody() {
   const quat = useRef(new Quaternion());
 
   const segments = useMemo(() => DEPTH_SEGMENTS, []);
+
+  useEffect(() => {
+    mouseBodyHandle.current = bodyRef.current;
+    return () => {
+      mouseBodyHandle.current = null;
+    };
+  }, []);
 
   useEffect(() => {
     // Listen on window, not the canvas — the Canvas has pointerEvents:"none" so it never

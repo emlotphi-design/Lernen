@@ -1,0 +1,59 @@
+// Stored as .txt so it stays inert (outside tsc/eslint/next build). To use: copy it out and drop the
+// .txt suffix (e.g. `cp docs/tools/perf-probe.cjs.txt /tmp/perf-probe.cjs`), then follow the usage below.
+// PRESERVED TOOL (docs only, not part of the app build) — homepage acceptance check across 5
+// viewports (3 desktop, 2 mobile): no vertical/horizontal overflow or scroll (wheel, End,
+// PageDown, scripted), nav bar and hero panel compute identical glass styles, no footer on "/",
+// "Lernpfad" → /lessons/grammar, no Teacher nav item, Start navigates by route and the next page
+// scrolls again. Usage: dev server on :3000, then `node docs/tools/homepage-check.cjs`.
+const { chromium, devices } = require("C:/Users/User/Lernen/node_modules/playwright");
+const dir = require("path").join(__dirname, "/");
+const VIEWPORTS = [
+  { name: "desktop-1600", viewport: { width: 1600, height: 900 } },
+  { name: "desktop-1920", viewport: { width: 1920, height: 1080 } },
+  { name: "laptop-1366", viewport: { width: 1366, height: 768 } },
+  { name: "mobile-390", ...devices["iPhone 13"] },
+  { name: "mobile-360", viewport: { width: 360, height: 640 }, isMobile: true, hasTouch: true, deviceScaleFactor: 2 },
+];
+(async () => {
+  const browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist"] });
+  for (const v of VIEWPORTS) {
+    const { name, ...ctxOpts } = v;
+    const ctx = await browser.newContext({ ...ctxOpts, colorScheme: "dark" });
+    const page = await ctx.newPage();
+    const errors = []; page.on("pageerror", (e) => errors.push(e.message));
+    await page.goto("http://localhost:3000/de", { waitUntil: "networkidle", timeout: 120000 });
+    await page.waitForTimeout(6000);
+    const metrics = () => page.evaluate(() => ({
+      overflowY: document.documentElement.scrollHeight - window.innerHeight,
+      overflowX: document.documentElement.scrollWidth - window.innerWidth,
+      scrollY: window.scrollY, scrollX: window.scrollX,
+    }));
+    const before = await metrics();
+    if (!ctxOpts.isMobile) { await page.mouse.move(200, 400); await page.mouse.wheel(0, 3000); await page.mouse.wheel(1500, 0); }
+    else { await page.touchscreen.tap(30, ctxOpts.viewport ? 400 : 400).catch(() => {}); await page.evaluate(() => window.scrollTo(0, 5000)); }
+    await page.keyboard.press("End"); await page.keyboard.press("PageDown");
+    await page.waitForTimeout(500);
+    const after = await metrics();
+    const glass = await page.evaluate(() => {
+      const nav = document.querySelector("header > div"); const panel = document.querySelector("section a").parentElement;
+      const pick = (el) => { const c = getComputedStyle(el); return [c.backgroundImage, c.backgroundColor, c.backdropFilter, c.borderTopColor].join(" | "); };
+      return { same: pick(nav) === pick(panel), nav: pick(nav).slice(0, 140) };
+    });
+    const nav = await page.evaluate(() => ({
+      footer: !!document.querySelector("footer"),
+      lernpfad: [...document.querySelectorAll("a")].find((a) => a.textContent.trim() === "Lernpfad")?.getAttribute("href") ?? "(in mobile menu)",
+      teacher: [...document.querySelectorAll("a")].some((a) => /teacher|lehrer/i.test(a.textContent.trim())),
+      sections: document.querySelectorAll("main section").length,
+    }));
+    await page.screenshot({ path: dir + `ns-${name}.png` });
+    // Start → route navigation (not scrolling), then the next page scrolls normally again.
+    await page.locator("section a", { hasText: "Start" }).click();
+    await page.waitForURL("**/de/lessons/grammar", { timeout: 60000 });
+    await page.waitForTimeout(1000);
+    const nextPage = await page.evaluate(() => { window.scrollTo(0, 400); return { path: location.pathname, htmlOverflow: document.documentElement.style.overflow || "(restored)", scrolled: window.scrollY > 0, footer: !!document.querySelector("footer") }; });
+    console.log(name.padEnd(13), JSON.stringify({ before, after, glassMatch: glass.same, ...nav, nextPage, errors: errors.length }));
+    if (name === "desktop-1600") console.log("  glass:", glass.nav);
+    await ctx.close();
+  }
+  await browser.close();
+})();

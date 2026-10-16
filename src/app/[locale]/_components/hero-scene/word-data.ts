@@ -13,31 +13,38 @@ export type WordInstance = {
   /** Deterministic per-instance animation offset — kept only so identical words can still be told
    *  apart by downstream effects (e.g. staggering a reactive wobble), not for idle motion. */
   phase: number;
+  /** Lies entirely behind the hero's title panel (see PIN_NS_X): rendered like every other word but
+   *  held as fixed scenery in the physics world, so the cursor passing over the panel doesn't wake
+   *  a column of words nobody can see except as a blur. */
+  pinned: boolean;
 };
 
-/** Saturated, candy-glossy but still premium palette — reads as "colorful plastic," not neon. */
+/** Rich candy pastels — more chroma than a washed pastel so each word holds its color under the
+ *  brighter lighting, but well short of neon (no fully-saturated, max-brightness primaries). Same
+ *  12 slots (and therefore the same per-word color assignment pattern) as before. */
 const PALETTE = [
-  "#5b7fa6", // dusty blue
-  "#c25850", // coral maroon
-  "#6a9159", // sage green
-  "#c99a3f", // olive gold
-  "#8d78b8", // soft violet
-  "#a89a7e", // warm sand
-  "#c97a52", // terracotta
-  "#4a8783", // deep teal
-  "#d4677a", // rose
-  "#5f9bb0", // sky teal
-  "#b8894a", // amber
-  "#7d8f5c", // moss
+  "#5c9cff", // sky blue
+  "#ff6079", // candy coral
+  "#3fcf88", // mint
+  "#ffbd2e", // honey
+  "#9a7dff", // lavender
+  "#ff9d68", // apricot
+  "#ff7b4a", // tangerine
+  "#2fc7ba", // aqua
+  "#ff70b4", // bubblegum
+  "#49aeff", // cyan
+  "#ffa22c", // marigold
+  "#8ccf4d", // lime
 ];
 
 // Another ~38% smaller on top of the previous pass (within the requested 35-40% reduction),
 // combined with another 2x instance count below and the camera pulling back slightly (see
-// CAMERA_REFERENCE_Z) — a much larger, denser "dumped from a truck" pile.
+// CAMERA_REFERENCE_Z) — a much larger, denser "dumped from a truck" pile. Then ~12% back up so
+// individual words stay readable as words rather than texture (same count, same tiers).
 const TIER_SIZE: Record<WordTier, number> = {
-  large: 0.43,
-  medium: 0.25,
-  small: 0.16,
+  large: 0.48,
+  medium: 0.28,
+  small: 0.18,
 };
 
 export const WORD_SIZE = TIER_SIZE;
@@ -87,12 +94,39 @@ function pickWord(list: string[], i: number): string {
  *  how close or far an instance sits, and regardless of the camera's exact distance. */
 const CAMERA_REFERENCE_Z = 15;
 const HALF_FOV_RAD = ((45 * Math.PI) / 180) / 2;
-const REFERENCE_ASPECT = 1.6;
+/** The hero now fills the full viewport under the overlaid glass nav, so on desktop the canvas is
+ *  ~16:9 (1.78) rather than the old 1.6 — matching it keeps the words reaching the left/right edges
+ *  instead of stopping short of them on wide screens. */
+const REFERENCE_ASPECT = 1.78;
 
-/** Normalized-screen-space half-extents of the "always clear" ellipse around the title/CTA block —
- *  slightly wider than before for a cleaner opening now that the pile is much denser. */
-const SAFE_NS_X = 0.42;
-const SAFE_NS_Y = 0.68;
+/** Center clearance, per depth tier, in normalized screen space (half-extents of an ellipse whose
+ *  edge blobUndulation keeps irregular). The title sits on a see-through glass panel spanning about
+ *  ±0.37 × ±0.25, and the pile fills the whole center, behind the panel included:
+ *  - far and mid tiers: only a token core stays clear (no visible gap anywhere);
+ *  - close tier (the ~140 huge front-most words): comes right up to the panel's outline but not
+ *    behind it, where they'd only be oversized blurred shapes behind the title.
+ *  Words wholly behind the panel are pinned (see PIN_NS_X), which keeps a fast mouse sweep across
+ *  the center waking roughly as many words as before the center was filled. */
+const SAFE_NS_X = 0.03;
+const SAFE_NS_Y = 0.04;
+const MID_SAFE_NS_X = 0.03;
+const MID_SAFE_NS_Y = 0.04;
+const CLOSE_SAFE_NS_X = 0.4;
+const CLOSE_SAFE_NS_Y = 0.3;
+/** How far each word additionally keeps from its clearance edge, in multiples of its own on-screen
+ *  half-size (the original 2.4 pushed the big words out into a wide ring). */
+const SAFE_FOOTPRINT_FACTOR = 1;
+const CLOSE_SAFE_FOOTPRINT = 1;
+/** Words whose whole rotated footprint lies inside ±PIN_NS_X × ±PIN_NS_Y are pinned: fixed physics
+ *  bodies, rendered normally. Sized inside the panel's footprint up to 2560px-wide viewports (the
+ *  panel has a fixed CSS width, so it covers less normalized width the wider the screen: ±0.23 at
+ *  2560px), so a pinned word is always under the glass, never out in the open looking unresponsive. */
+const PIN_NS_X = 0.22;
+const PIN_NS_Y = 0.17;
+/** How strongly blobUndulation pushes the clear zone's edge outward. At 0.6 it bulged the dark
+ *  center up to +26% along a couple of diagonals — read on screen as a lopsided hole with sparse
+ *  upper-left/lower-right flanks; a light touch keeps the edge organic but the shape even. */
+const UNDULATION_STRENGTH = 0.2;
 
 function ellipseRadius(theta: number, rx: number, ry: number): number {
   const c = Math.cos(theta);
@@ -113,8 +147,14 @@ function edgeRadiusForTheta(theta: number): number {
 }
 /** How far past the literal screen edge the outer spawn boundary extends — a bit of natural
  *  overflow so the pile's outer fringe reads as continuing past the frame instead of stopping in a
- *  hard visible ring right at the edge. */
-const EDGE_MARGIN_FACTOR = 1.18;
+ *  hard visible ring right at the edge. Kept small: with density now uniform per unit area, every
+ *  bit of overflow is a share of the words spent off-screen (1.18 left ~28% of the area outside the
+ *  frame; 1.08 leaves ~14%). */
+const EDGE_MARGIN_FACTOR = 1.08;
+/** Upper bound of the annulus area weight (rMax² − rMin²) used for area-weighted angle sampling —
+ *  reached at a screen corner, where rMax = √2·EDGE_MARGIN_FACTOR and rMin is at least 0. */
+const MAX_ANNULUS_WEIGHT = 2 * EDGE_MARGIN_FACTOR * EDGE_MARGIN_FACTOR;
+const ANGLE_SAMPLE_ATTEMPTS = 24;
 
 /** Irregular, non-circular undulation via a few summed sinusoids at different frequencies/phases —
  *  cheap deterministic "noise" so the mass boundary emerges organically instead of a perfect ellipse. */
@@ -164,6 +204,9 @@ const PACK_OVERLAP_TOLERANCE = 0.78;
  *  reachable but rarely actually used. */
 const LOCAL_ANGLE_RANGE = 0.7;
 const LOCAL_RADIUS_RANGE = 0.42;
+/** Radius at which the full LOCAL_ANGLE_RANGE applies; beyond it the angular range shrinks so the
+ *  arc-length nudge stays roughly constant (see packRect). */
+const LOCAL_ARC_REFERENCE_R = 0.8;
 
 /** Uniform-grid spatial hash so an overlap test only has to check nearby rects, not every rect
  *  placed so far — keeps packing hundreds of words at build time effectively linear instead of
@@ -237,11 +280,19 @@ function packRect(
 ): { x: number; y: number } {
   let fallback: { x: number; y: number } | null = null;
 
+  // A fixed angular jitter moves a word much further at large radii (arc = r·Δθ), which near the
+  // corners swung words sideways past the screen edge — so the angle range shrinks with radius to
+  // keep the actual displacement bounded, and each attempt is clamped to the edge in its own
+  // direction rather than the target's (which is longer on the diagonals).
+  const angleRange = LOCAL_ANGLE_RANGE * Math.min(1, LOCAL_ARC_REFERENCE_R / targetR);
+
   for (let i = 0; i < PACK_MAX_ATTEMPTS; i++) {
-    const angleFrac = ((i * GOLDEN_ANGLE) / (Math.PI * 2)) % 1;
-    const radiusFrac = (i * 0.6180339887498949) % 1;
-    const theta = targetTheta + (angleFrac * 2 - 1) * LOCAL_ANGLE_RANGE;
-    const r = Math.min(Math.max(targetR + (radiusFrac * 2 - 1) * LOCAL_RADIUS_RANGE, rMin), rMax);
+    // Attempt 0 is the exact target, so an uncontested spot is used as-is.
+    const angleFrac = i === 0 ? 0.5 : ((i * GOLDEN_ANGLE) / (Math.PI * 2)) % 1;
+    const radiusFrac = i === 0 ? 0.5 : (i * 0.6180339887498949) % 1;
+    const theta = targetTheta + (angleFrac * 2 - 1) * angleRange;
+    const edge = Math.max(edgeRadiusForTheta(theta) * EDGE_MARGIN_FACTOR, rMin);
+    const r = Math.min(Math.max(targetR + (radiusFrac * 2 - 1) * LOCAL_RADIUS_RANGE, rMin), Math.min(rMax, edge));
     const x = Math.cos(theta) * r;
     const y = Math.sin(theta) * r;
     const rect: PackedRect = { cx: x, cy: y, hw: halfW, hh: halfH };
@@ -303,14 +354,37 @@ function buildTier(tier: WordTier, words: string[], count: number, seedBase: num
     const nsHalfWidth = (text.length * 0.58 * scale * 0.5) / worldHalfWidth;
     const nsHalfHeight = (scale * 0.55) / worldHalfHeight;
 
-    const effRx = SAFE_NS_X + nsHalfWidth * 2.4;
-    const effRy = SAFE_NS_Y + nsHalfHeight * 2.4;
+    // Per-tier center clearance — see SAFE_NS_X.
+    const close = depthTier === "close";
+    const mid = depthTier === "mid";
+    const effRx = (close ? CLOSE_SAFE_NS_X : mid ? MID_SAFE_NS_X : SAFE_NS_X) + nsHalfWidth * (close ? CLOSE_SAFE_FOOTPRINT : SAFE_FOOTPRINT_FACTOR);
+    const effRy = (close ? CLOSE_SAFE_NS_Y : mid ? MID_SAFE_NS_Y : SAFE_NS_Y) + nsHalfHeight * (close ? CLOSE_SAFE_FOOTPRINT : SAFE_FOOTPRINT_FACTOR);
 
-    const theta0 = rand(seed, 1) * Math.PI * 2;
-    const safeR = ellipseRadius(theta0, effRx, effRy);
-    const undulation = Math.max(blobUndulation(theta0, seedBase * 0.37 + 1.1), 0);
-    const rMin = safeR * (1 + undulation * 0.6);
-    const rMax = Math.max(edgeRadiusForTheta(theta0) * EDGE_MARGIN_FACTOR, rMin + 0.05);
+    const undulationSeed = seedBase * 0.37 + 1.1;
+    const annulusAt = (theta: number) => {
+      const safeR = ellipseRadius(theta, effRx, effRy);
+      const undulation = Math.max(blobUndulation(theta, undulationSeed), 0);
+      const rMin = safeR * (1 + undulation * UNDULATION_STRENGTH);
+      const rMax = Math.max(edgeRadiusForTheta(theta) * EDGE_MARGIN_FACTOR, rMin + 0.05);
+      return { rMin, rMax };
+    };
+
+    // Angle is sampled in proportion to the annulus *area* in that direction (rMax² − rMin²), not
+    // uniformly. A uniform angle puts the same number of words into every direction, but the
+    // diagonals reach the screen corners (rMax up to √2× the side distance), so the same count was
+    // spread over up to twice the area there — that, plus the undulation inflating rMin at some
+    // angles, is what left the upper-left and lower-right corners visibly thin. Deterministic
+    // rejection sampling keeps placement stable across reloads/SSR.
+    let theta0 = rand(seed, 1) * Math.PI * 2;
+    for (let attempt = 0; attempt < ANGLE_SAMPLE_ATTEMPTS; attempt++) {
+      const candidate = rand(seed, 20 + attempt * 2) * Math.PI * 2;
+      const { rMin: cMin, rMax: cMax } = annulusAt(candidate);
+      if (rand(seed, 21 + attempt * 2) * MAX_ANNULUS_WEIGHT <= cMax * cMax - cMin * cMin) {
+        theta0 = candidate;
+        break;
+      }
+    }
+    const { rMin, rMax } = annulusAt(theta0);
     const areaFrac = rand(seed, 11);
     const targetR = Math.sqrt(rMin * rMin + (rMax * rMax - rMin * rMin) * areaFrac);
 
@@ -342,6 +416,13 @@ function packLayer(words: PendingWord[]): WordInstance[] {
     const ry = (rand(w.seed, 7) - 0.5) * 0.7;
     const rz = (rand(w.seed, 8) - 0.5) * 1.0;
 
+    // Screen-space footprint of the rolled word (x and y are normalized to different world extents,
+    // hence the aspect factor), then: does it sit wholly inside the panel's pinned zone?
+    const c = Math.abs(Math.cos(rz)), s = Math.abs(Math.sin(rz));
+    const extX = w.nsHalfWidth * c + (w.nsHalfHeight / REFERENCE_ASPECT) * s;
+    const extY = w.nsHalfHeight * c + w.nsHalfWidth * REFERENCE_ASPECT * s;
+    const pinned = Math.abs(nsx) + extX <= PIN_NS_X && Math.abs(nsy) + extY <= PIN_NS_Y;
+
     result.push({
       id: `${w.tier}-${w.seed}-${w.text}`,
       text: w.text,
@@ -352,6 +433,7 @@ function packLayer(words: PendingWord[]): WordInstance[] {
       rotation: [rx, ry, rz],
       scale: w.scale,
       phase: rand(w.seed, 10) * Math.PI * 2,
+      pinned,
     });
   }
 

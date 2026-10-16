@@ -3,6 +3,7 @@
 import { Bot } from "lucide-react";
 import { Link } from "@/i18n/navigation";
 import { useExplanationUiLabels } from "@/components/providers/explanation-language-provider";
+import { NAV_ITEM_CLASS } from "./nav-links";
 
 // The one deliberately reactive nav item — its label follows the learner's explanation
 // language (a teacher addressing them in their own language), unlike every other nav item,
@@ -12,10 +13,7 @@ export function TeacherNavLink() {
   const labels = useExplanationUiLabels();
 
   return (
-    <Link
-      href="/#lehrer"
-      className="whitespace-nowrap rounded-lg px-2 py-2 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-    >
+    <Link href="/#lehrer" className={NAV_ITEM_CLASS}>
       {labels.teacherLabel}
     </Link>
   );

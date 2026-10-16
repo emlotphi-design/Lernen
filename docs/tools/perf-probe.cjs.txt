@@ -1,0 +1,58 @@
+// Stored as .txt so it stays inert (outside tsc/eslint/next build). To use: copy it out and drop the
+// .txt suffix (e.g. `cp docs/tools/perf-probe.cjs.txt /tmp/perf-probe.cjs`), then follow the usage below.
+// PRESERVED TOOL (docs only, not part of the app build) — real-GPU frame-time probe for the
+// homepage background (see docs/PROJECT_MEMORY.md §7). Measures rAF frame times idle, during a
+// rapid mouse zigzag across the hero, and after it.
+//
+// Usage: dev server running on :3000, then `node docs/tools/perf-probe.cjs <label>`.
+// Uses the repo's devDependency `playwright` with the real GPU via ANGLE/D3D11 (Windows). Absolute
+// require path below assumes the repo at C:/Users/User/Lernen — adjust if moved.
+// IMPORTANT: results are noisy (the user's own Chrome shares the GPU). Only trust INTERLEAVED A/B
+// rounds (variant A, variant B, A, B, …) and discard rounds where both variants degrade together.
+// Frame-time probe on the real GPU: idle vs rapid cursor zigzag across the hero.
+const { chromium } = require("C:/Users/User/Lernen/node_modules/playwright");
+const label = process.argv[2] || "run";
+(async () => {
+  const browser = await chromium.launch({ args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "--disable-gpu-vsync", "--disable-frame-rate-limit"] });
+  const page = await browser.newPage({ viewport: { width: 1600, height: 900 }, colorScheme: "dark" });
+  await page.goto("http://localhost:3000/de", { waitUntil: "networkidle", timeout: 120000 });
+  await page.waitForTimeout(9000); // past the ~1.5–3s re-anchor window and initial settle
+
+  const record = () => page.evaluate(() => {
+    window.__frames = [];
+    let last = performance.now();
+    const tick = (t) => { window.__frames.push(t - last); last = t; window.__raf = requestAnimationFrame(tick); };
+    window.__raf = requestAnimationFrame(tick);
+  });
+  const stop = () => page.evaluate(() => { cancelAnimationFrame(window.__raf); return window.__frames.slice(1); });
+  const stats = (f) => {
+    const s = [...f].sort((a, b) => a - b);
+    const mean = f.reduce((a, b) => a + b, 0) / f.length;
+    return { frames: f.length, fps: +(1000 / mean).toFixed(1), p50: +s[Math.floor(s.length * 0.5)].toFixed(1), p95: +s[Math.floor(s.length * 0.95)].toFixed(1), worst: +s[s.length - 1].toFixed(1), over25ms: f.filter((x) => x > 25).length };
+  };
+
+  await page.mouse.move(1590, 890);
+  await record(); await page.waitForTimeout(3000);
+  const idle = stats(await stop());
+
+  await record();
+  const t0 = Date.now(); let i = 0;
+  while (Date.now() - t0 < 4000) {
+    // zigzag across the whole hero (edges, corners, and through the pile), ~1 move per few ms
+    const phase = (i++ % 120) / 120;
+    const x = 40 + 1520 * (phase < 0.5 ? phase * 2 : 2 - phase * 2);
+    const y = 60 + 780 * ((i * 7) % 100) / 100;
+    await page.mouse.move(x, y);
+  }
+  const sweep = stats(await stop());
+
+  await page.mouse.move(1590, 890);
+  await page.waitForTimeout(3000);
+  await record(); await page.waitForTimeout(3000);
+  const recovered = stats(await stop());
+
+  console.log(label.padEnd(10), "idle", JSON.stringify(idle));
+  console.log(label.padEnd(10), "sweep", JSON.stringify(sweep));
+  console.log(label.padEnd(10), "after", JSON.stringify(recovered));
+  await browser.close();
+})();

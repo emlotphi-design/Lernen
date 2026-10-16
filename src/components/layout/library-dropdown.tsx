@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useRouter } from "@/i18n/navigation";
-import { LIBRARY_LINKS } from "./nav-links";
+import { LIBRARY_LINKS, NAV_ITEM_CLASS } from "./nav-links";
 
 export function LibraryDropdown() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export function LibraryDropdown() {
         render={
           <button
             type="button"
-            className="flex items-center gap-1 whitespace-nowrap rounded-lg px-2 py-2 text-body-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className={`flex items-center gap-1 ${NAV_ITEM_CLASS}`}
           >
             Bibliothek
             <ChevronDown className="size-3.5" />
